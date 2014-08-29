@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'choc_tools'
+require 'optparse'
+
+options = {}
+
+cmd_parser = OptionParser.new do |opts|
+  opts.banner = <<-USAGE
+Usage: choc <input_file> [<object_file_name>...]
+Example: choc libProprietaryUniversal.a AFHTTPClient.o Foo.o Bar.o Baz.o
+
+USAGE
+  opts.on("-h", "--help", "Display this help screen") do
+    puts opts
+    exit
+  end
+end
+
+begin 
+  args = cmd_parser.parse(ARGV)
+  filename = args[0]
+  objs =  args.slice(1, args.length - 1)
+  p filename
+  p "---"
+  p objs
+rescue OptionParser::InvalidOption => e
+  puts e
+  puts cmd_parser
+  exit 1
+end

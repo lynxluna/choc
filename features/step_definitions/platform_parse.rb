@@ -42,4 +42,6 @@ Then(/^make uberlib from (.+)$/) do |srcdir|
   temp_destlib = "#{Dir.pwd}/#{@filename}"
   expect(Choc::make_uberlib(temp_destlib, srcdir)).to be_truthy
   expect(File.exists?(temp_destlib)).to be_truthy
+  expect(Choc::extract_platforms(temp_destlib)).equal?(@platforms)
+  FileUtils.rm temp_destlib
 end

@@ -2,28 +2,87 @@
 
 require 'choc_tools'
 require 'optparse'
+require 'securerandom'
+require 'fileutils'
 
-options = {}
+$verbose = false
 
 cmd_parser = OptionParser.new do |opts|
   opts.banner = <<-USAGE
 Usage: choc <input_file> [<object_file_name>...]
 Example: choc libProprietaryUniversal.a AFHTTPClient.o Foo.o Bar.o Baz.o
 
-USAGE
+  USAGE
   opts.on("-h", "--help", "Display this help screen") do
     puts opts
     exit
   end
+
+  opts.on("-v", "--verbose", "Verbose Mode") do
+    $verbose = true
+  end
 end
+
+$target_dir = "/tmp/choc/#{SecureRandom.uuid}"
 
 begin 
   args = cmd_parser.parse(ARGV)
+
+  if args.count < 2
+    puts "Invalid parameters"
+    puts cmd_parser
+    exit 1
+  end
+
+  # Get the filename and objects.
   filename = args[0]
   objs =  args.slice(1, args.length - 1)
-  p filename
-  p "---"
-  p objs
+
+  # Check existence
+  if not File.exists?(filename)
+    puts "File #{filename} not found"
+    exit 1
+  end
+
+  # Check if file is universal binary
+  if `file #{filename}`.split("\n")[0].index("Mach-O universal binary") == nil
+    puts "File #{filename} is not a universal binary"
+    exit 1
+  end
+
+  # First decide the platform and create the processing directory
+  puts "Creating #{$target_dir}..."
+  FileUtils.mkdir_p $target_dir
+  platforms = Choc::extract_platforms(filename)
+  puts "Platforms found in #{filename}: #{platforms.to_a.join(',')}"
+  puts "Processing..."
+  platforms.to_a.each do |platform|
+    libname = Choc::platform_libname(filename, platform, $target_dir)
+    platform_targetdir = "#{$target_dir}/#{platform}"
+    puts "Extracting #{platform} to #{libname}" if $verbose
+    Choc::extract_lib(filename, platform, $target_dir)
+    puts "Extracting object files..." if $verbose
+    FileUtils.mkdir_p platform_targetdir
+    Choc::extract_objects(libname, platform_targetdir)
+    puts "Deleting unneeded object files..." if $verbose
+    objs.each do |obj|
+      objfilename = "#{platform_targetdir}/#{obj}"
+      puts "Deleting #{objfilename} for #{platform}..." if $verbose
+      FileUtils.rm(objfilename) if File.exists?(objfilename)
+    end
+
+    # Repack Back
+    Choc::arlib(libname, platform_targetdir)
+  end
+  
+  # Make Universal
+  Choc::make_uberlib(filename, $target_dir)
+
+  # Clean Up
+  puts "Cleaning Up..."
+  FileUtils.rm_r($target_dir)    
+
+
 rescue OptionParser::InvalidOption => e
   puts e
   puts cmd_parser

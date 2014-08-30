@@ -9,6 +9,5 @@ Gem::Specification.new do |s|
   s.files   = ["lib/choc_tools.rb", "bin/choc"]
   s.homepage = "http://github.com/lynxluna/choc"
   s.license = "MIT"
-  s.add_runtime_dependency "uuid", ["~>0"]
   s.executables << 'choc'
 end

@@ -26,6 +26,14 @@ end
 $target_dir = "/tmp/choc/#{SecureRandom.uuid}"
 
 begin 
+  if (/darwin/=~ RUBY_PLATFORM) == nil
+    puts "Choc only runs on OSX"
+    exit 1
+  end
+
+  if (`which lipo`.strip.empty? and `which ar`.strip.empty?) 
+    puts "You'd need `lipo` and `ar` on your PATH. Have you installed XCODE?"
+  end
   args = cmd_parser.parse(ARGV)
 
   if args.count < 2

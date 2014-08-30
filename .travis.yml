@@ -1,0 +1,5 @@
+language: objective-c
+before_install: 
+  - rvm 2.1.2
+  - bundler install
+script: cucumber 

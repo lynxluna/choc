@@ -1,6 +1,8 @@
 Choc
 -----
 
+[![Build Status](https://travis-ci.org/lynxluna/choc.svg?branch=master)](https://travis-ci.org/lynxluna/choc)
+
 `choc` is a tool to remove object files from as iOS library or framework. It'll automatically scan, dissect, remove
 unneeded object files from the library and then repack it back to the universal library.
 

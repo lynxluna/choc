@@ -1,5 +1,4 @@
-Choc
------
+# Choc
 
 [![Build Status](https://travis-ci.org/lynxluna/choc.svg?branch=master)](https://travis-ci.org/lynxluna/choc)
 
@@ -15,8 +14,7 @@ This small program will help you remove the unneeded objects and you can delegat
 the dependencies as needed. This tool was born because of my frustation when doing contract work and finding out
 many people includes compiled open source files to their  proprietary libraries preventing the client to update it.
 
-Installation
-============
+## Installation
 
 Choc is packaged as RubyGems. You can install it using `gem` command
 
@@ -33,17 +31,32 @@ $ gem build choc.gemspec
 $ gem install choc-0.1.0.gem
 ```
 
-Usage
-=====
+## Usage
 
 Choc needs two input library and the object filenames to be removed
 
 ```bash
-$ choc libProprietary.a <object list>
+$ choc <library name> [<object list>...]
 ```
 
-License
-=======
+### Example: static universal library
+
+```bash
+$ choc libProprietary.a JSONKit.o
+```
+
+### Example: static framework
+
+Usually the same with static universal library. Framework is just a directory. It usually located in the
+`Versions/A/` and symlinked to `Versions/Current`
+
+```bash
+$ choc Proprietary.framework/Versions/A/Proprietary JSONKit.o
+```
+
+**TODO** : In the future this will be automatically detected
+
+## License
 
 The MIT License (MIT)
 
